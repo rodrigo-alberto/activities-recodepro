@@ -1,12 +1,13 @@
 Algoritmo "AgencyGoodVacation"
 // Programa Recode Pro 2023 - Atividade Prática do Módulo 2 (Pseudocódigo);
-// Professor   : ;
-// Descrição   : Simula um menu básico para uma empresa de agência de viagens;
+// Professor   : Flávio Mota da Cruz;
+// Descrição   : Simula um sistema básico com menu
+//             para uma empresa de agência de viagens;
 // Autor(a)    : Rodrigo Alberto M. de Sousa
-// Data atual  : 15/07/2023
-//---------------------------------------------------------------------------;
+// Data início do projeto  : 15/07/2023
 
-// Procedimentos ------------------------------;
+//-------------------------------- PROCEDIMENTOS ------------------------------;
+// #Impressões:
 
 procedimento printLogo(speed:inteiro)
 inicio
@@ -29,39 +30,43 @@ inicio
    escreval("")
    escreval("================================================================")
    escreval("")
-fimprocedimento
-
-procedimento printAlerta(msg:caracter)
-inicio
-   escreval("-------------------------------------------------")
-   escreval("")
-   timer(3500)
-   escreval("     ----- ", msg, " -----")
    timer(0)
 fimprocedimento
+
+procedimento printAlerta(msgTop,msgBottom:caracter)
+inicio
+   escreval("--------------------------------------------------------------")
+   escreval("")
+   escreval("            ---- ", msgTop, " ----")
+   escreval("")
+   escreval("       - ", msgBottom, " -")
+   timer(2000)
+   timer(0)
+fimprocedimento //Fim do procedimento printAlerta();
 
 procedimento printHeader()
 inicio
    limpatela
    escreval("=============== Agência de Viagens - GOOD VACATION =============")
    escreval("")
-fimprocedimento
+fimprocedimento //Fim do procedimento printHeader();
 
-procedimento printMenu()
+procedimento printMenuPrincipal()
 var
-   menuOption, i:inteiro
+   statusCadastro:logico
+   menuOption:caractere
 inicio
    printHeader()
    escreval("# - Cadastros: ------------------------")
    escreval("")
    escreval("     1 - Cadastro de clientes")
-   escreval("     2 - Cadstro de destino")
+   escreval("     2 - Cadastro de destinos")
    escreval("")
    escreval("# - Consultas: ------------------------")
    escreval("")
-   escreval("     3 - Consultar clientes ativos")
-   escreval("     4 - Consultar lista de destinos")
-   escreval("     5 - Consultar registro individual")
+   escreval("     3 - Consultar lista de clientes ativos")
+   escreval("     4 - Consultar registro individual")
+   escreval("     0 - Sair da aplicação")
    escreval("")
    escreval("================================================================")
    escreval("")
@@ -71,53 +76,205 @@ inicio
    leia(menuOption)
 
    escolha menuOption
-   caso 0
-      printLogo(400)
-      //fimalgoritmo
-   caso 1
-      se(numCliente <=4) entao
-         se(cadastrarCliente(numCliente) = VERDADEIRO) entao
-            printAlerta("Cadastro concluído com sucesso!")
-            numCliente <- numCliente + 1
-            printMenu()
+   caso "0"
+      printLogo(350)
+
+   caso "1"
+      se(indiceCliente <= MAX_CLIENTES) entao
+         cadastrarCliente()
+      senao
+         printHeader()
+         printAlerta("Cota máxima de clientes atingida!", "Por favor, aguarde a liberação de vagas")
+         printMenuPrincipal()
+      fimse
+
+   caso "2"
+      se(indiceDestino <= MAX_DESTINOS) entao
+         cadastrarDestino()
+      senao
+         printHeader()
+         printAlerta("Cota máxima de destinos atingida!", "Por favor, aguarde a liberação")
+         printMenuPrincipal()
+      fimse
+
+   caso "3"
+      escreval("3")
+
+   caso "4"
+      escreval("4")
+
+   outrocaso
+      printMenuPrincipal()
+   fimescolha
+fimprocedimento //Fim do procedimento printMenuPrincipal();
+
+procedimento printMenuEscolha(origem:caractere)
+var
+   option:caracter
+inicio
+   printHeader()
+   escreval("Pressione 0 - para voltar ou 1 - para cadastrar um novo...")
+   escreva("-> ")
+   leia(option)
+
+   se(option = "0") entao
+      printMenuPrincipal()
+   senao
+      se(option = "1") entao
+         se(origem = "cadastrarCliente") entao
+            se(indiceCliente <= MAX_CLIENTES) entao
+               cadastrarCliente()
+            senao
+               printAlerta("Cota máxima de clientes atingida!", "Por favor, aguarde a liberação de vagas")
+               printMenuPrincipal()
+            fimse
          senao
-            printAlerta("Cota máxima de clientes atingida!")
-            numCliente <- 4 //Ou colocar constantes aqui
-            printMenu()
+            se(origem = "cadastrarDestino") entao
+               se(indiceDestino <= MAX_DESTINOS) entao
+                  cadastrarDestino()
+               senao
+                  printAlerta("Cota máxima de destinos atingida!", "Por favor, aguarde a liberação")
+                  printMenuPrincipal()
+               fimse
+            fimse
          fimse
       senao
-         escreval("nnnnn cadastrou")
+         printMenuEscolha(origem)
       fimse
-   caso 3
-      escreval("3")
-   outrocaso
-      escreval("outro caso")
-   fimescolha
+   fimse
+fimprocedimento //Fim do procedimento printMenuEscolha()
+
+// #Auxiliares:
+
+procedimento associarDestino()
+var
+   opcao:caractere
+inicio
+   printHeader()
+   escreva("- ", nomesClientes[(indiceCliente-1), 0])
+   escreval(", deseja associar um dos destinos de viajens disponíveis ao seu cadastro?")
+
+   consultarDestinos()
+
+   escreval("")
+   escreval("Informe um nome entre os destinos acima ou digite ")
+   escreval("0 - para sair sem associar...")
+   escreval("-> ")
+   escreva("   ")
+   leia(opcao)
+
+   se(opcao = "0") entao
+      printMenuEscolha("cadastrarCliente")
+   senao
+      se(valEscolhaDestino(opcao) = VERDADEIRO) entao
+         nomesClientes[(indiceCliente-1), 2] <- opcao
+         printAlerta("Destino associado com sucesso!", "")
+         printMenuEscolha("cadastrarCliente")
+      senao
+         associarDestino()
+      fimse
+   fimse
 fimprocedimento
 
-// Funções ------------------------------;
+// #Cadastros:
 
-funcao valCampoVazio(): logico
+procedimento cadastrarCliente()
 inicio
+   printHeader()
+   escreva("# - Cadastro de clientes:")
+   escreval("                       [Cliente nº ", (indiceCliente+1), "]")
+   escreval("")
+   escreva("     - Informe seu primeiro nome: ")
+   leia(nomesClientes[indiceCliente, 0])
+   escreva("     - Informe seus sobrenomes: ")
+   leia(nomesClientes[indiceCliente, 1])
+   escreval("     - Informe sua data de nascimento")
+   escreva("   -- Dia: ")
+   leia(dadosClientes[indiceCliente, 0])
+   escreva("   -- Mês: ")
+   leia(dadosClientes[indiceCliente, 1])
+   escreva("   -- Ano: ")
+   leia(dadosClientes[indiceCliente, 2])
 
-   retorne VERDADEIRO
-fimfuncao
+   se(valCampoVazio() = VERDADEIRO) entao
+      se(valData() = VERDADEIRO) entao
+         printAlerta("Cadastro concluído com sucesso!", "")
 
-funcao valData(numCliente:inteiro): logico
+
+         indiceCliente <- indiceCliente + 1
+         associarDestino()
+
+
+      senao
+         printAlerta("Erro! Data inválida!", "Por favor, verifique - [Cadastro invalidado]")
+         cadastrarCliente()
+      fimse
+   senao
+      printAlerta("Erro! Nem todos os campos foram preenchidos!", "Preencha os campos- [Cadastro invalidado]")
+      cadastrarCliente()
+   fimse
+fimprocedimento //Fim do procedimento cadastrarCliente();
+
+procedimento cadastrarDestino()
+inicio
+   printHeader()
+   escreva("# - Cadastro de destinos:")
+   escreval("")
+   consultarDestinos()
+   escreval("================================================================")
+   escreva("Informe o nome do novo destino: ")
+   leia(listaDestinos[indiceDestino])
+
+   printAlerta("Destino cadastrado com sucesso!", "--------------------------------------------")
+   indiceDestino <- indiceDestino + 1
+
+   printMenuEscolha("cadastrarDestino")
+fimprocedimento //Fim do procedimento cadastrarDestinos();
+
+// #Consultas:
+
+procedimento consultarDestinos()
 var
-   data, mes, ano:inteiro
+   i:inteiro
 inicio
+   escreval("")
 
-   //data <- int(clientes[numCliente,2])
-   //mes <- int(clientes[numCliente,3])
-   //ano <- int(clientes[numCliente,4])
+   para i de 0 ate MAX_DESTINOS faca
+      escreval("  - ", listaDestinos[i])
+   fimpara
+fimprocedimento //Fim do procedimento consultarDestinos();
 
-   se((clientes[numCliente,2] <= "31") e (clientes[numCliente,2] > "0")) entao
-      escreval("dia valido")
-      se((clientes[numCliente,3] <="12") e (clientes[numCliente,3] > "0")) entao
-         escreval("mes valido")
-         se((clientes[numCliente,4] < "2023") e (clientes[numCliente,4] >= "1908")) entao //Atualmente, a pessoa mais velha do mundo tem 115 anos;
-            escreval("ano valido")
+//----------------------------------- FUNÇÕES ---------------------------------;
+//#Validações de dados:
+
+funcao valCampoVazio():logico
+var
+   i:inteiro
+   statusValidacao:logico
+inicio
+   para i de 0 ate 1 faca
+      se(nomesClientes[indiceCliente, i] = "") entao
+         statusValidacao <- FALSO
+         interrompa
+      senao
+         statusValidacao <- VERDADEIRO
+      fimse
+   fimpara
+
+   retorne statusValidacao
+fimfuncao //Fim da função valCampoVazio();
+
+funcao valData():logico
+var
+   dia, mes, ano:inteiro
+inicio
+   dia <- dadosClientes[indiceCliente,0])
+   mes <- dadosClientes[indiceCliente,1])
+   ano <- dadosClientes[indiceCliente,2])
+
+   se((dia <= 31) e (dia > 0)) entao
+      se((mes <= 12) e (mes > 0)) entao
+         se((ano < ANO_ATUAL) e (ano >= ANO_LIMITE)) entao
             retorne VERDADEIRO
          senao
             retorne FALSO
@@ -128,60 +285,53 @@ inicio
    senao
       retorne FALSO
    fimse
-fimfuncao
+fimfuncao //Fim da função valData();
 
-funcao cadastrarCliente(numCliente:inteiro):logico
+funcao valEscolhaDestino(opcao:caractere):logico
 var
-   statusCadastro:logico
-
+   statusValidacao:logico
+   i:inteiro
 inicio
-   limpatela
-   printHeader()
 
-   escreval("Cadastro de clientes:")
-   escreval("")
-   escreva("     - Informe seu primeiro nome: ")
-   leia(clientes[numCliente, 0])
-   escreva("     - Informe seus sobrenomes: ")
-   leia(clientes[numCliente, 1])
-   escreval("     - Informe sua data de nascimento")
-   escreva("   -- Dia: ")
-   leia(clientes[numCliente, 2])
-   escreva("   -- Mês: ")
-   leia(clientes[numCliente, 3])
-   escreva("   -- Ano: ")
-   leia(clientes[numCliente, 4])
-
-   se(valCampoVazio() = VERDADEIRO) entao
-      escreval("vazio verdade")
-      se(valData(numCliente) = VERDADEIRO) entao
-         escreval("data verdade")
-         statusCadastro <- VERDADEIRO
-      senao
-         printAlerta("Erro! Data inválida! - [Cadastro invalidado]")
-         //erro aqui?
-         statusCadastro <- cadastrarCliente(numCliente)
-      fimse
+   se(opcao <> "") entao
+      para i de 0 ate MAX_DESTINOS faca
+         se(opcao = listaDestinos[i]) entao
+            statusValidacao <- VERDADEIRO
+            interrompa
+         senao
+            statusValidacao <- FALSO
+         fimse
+      fimpara
    senao
-      printAlerta("Erro! Nem todos os campos foram preenchidos! - [Cadastro invalidado]")
-      statusCadastro <- cadastrarCliente()
+      statusValidacao <- FALSO
    fimse
 
-   retorne statusCadastro
-fimfuncao
+   retorne statusValidacao
+fimfuncao  //Fim da função valEscolhaDestino();
 
-
-
-// Código principal ------------------------------;
-
+//------------------------------ CÓDIGO PRINCIPAL -----------------------------;
+//Obs.: Se houver modificações nas constantes, altere também as respectivas declaração dos vetores;
 Var
+   //Constantes:
+   ANO_ATUAL, ANO_LIMITE, MAX_CLIENTES, MAX_DESTINOS:inteiro
+
+   //Variáveis:
    startOption:caractere
-   clientes:vetor[0..4,0..4] de caracter
-   numCliente:inteiro
+   nomesClientes:vetor[0..4,0..2] de caractere
+   dadosClientes:vetor[0..4,0..2] de inteiro
+   listaDestinos:vetor[0..4] de caractere
+   indiceCliente, indiceDestino:inteiro
 
 Inicio
+   ANO_ATUAL <- 2023
+   ANO_LIMITE <- 1908 //Atualmente, a pessoa mais velha do mundo tem 115 anos;
+   MAX_DESTINOS <- 4
+   MAX_CLIENTES <- 4 //Nº máximo de clientes que o vetor suporta;
+   indiceDestino <- 2 //"Salvador" e "Rio de Janeiro" formam uma lista prévia de destinos;
+   listaDestinos[0] <- "Salvador"
+   listaDestinos[1] <- "Rio de Janeiro"
+
    printLogo(0)
-   numCliente <- 0
 
    repita
       escreval("Pressione 1 - para continuar ou 0 - para sair...")
@@ -190,14 +340,14 @@ Inicio
       limpatela
 
       se(startOption = "1") entao
-         printMenu()
+         printMenuPrincipal()
+         interrompa
       senao
          se(startOption = "0") entao
-            printLogo(400)
-            //fimalgoritmo
+            printLogo(350)
          senao
             printLogo(0)
          fimse
       fimse
-   ate startOption = "1"
+   ate startOption = "0"
 Fimalgoritmo
