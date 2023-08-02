@@ -40,7 +40,7 @@ inicio
    escreval("            ---- ", msgTop, " ----")
    escreval("")
    escreval("       - ", msgBottom, " -")
-   timer(2000)
+   timer(3500)
    timer(0)
 fimprocedimento //Fim do procedimento printAlerta();
 
@@ -98,10 +98,18 @@ inicio
       fimse
 
    caso "3"
-      escreval("3")
+      printHeader()
+      escreval("# - Lista de clientes ativos:")
+      consultarClientes()
+      escreva(" - Pressione a tecla 'enter' para voltar")
+      leia(menuOption)
+      printMenuPrincipal()
 
    caso "4"
-      escreval("4")
+      consultarClienteIndividual()
+      escreva(" - Pressione a tecla 'enter' para voltar")
+      leia(menuOption)
+      printMenuPrincipal()
 
    outrocaso
       printMenuPrincipal()
@@ -164,12 +172,13 @@ inicio
    leia(opcao)
 
    se(opcao = "0") entao
+      nomesClientes[(indiceCliente-1), 2] <- "[Sem destino associado]"
       printMenuEscolha("cadastrarCliente")
    senao
       se(valEscolhaDestino(opcao) = VERDADEIRO) entao
          nomesClientes[(indiceCliente-1), 2] <- opcao
-         printAlerta("Destino associado com sucesso!", "")
-         printMenuEscolha("cadastrarCliente")
+         printAlerta("Destino associado com sucesso!", "--------------------------------------------")
+         printMenuPrincipal()
       senao
          associarDestino()
       fimse
@@ -198,7 +207,7 @@ inicio
 
    se(valCampoVazio() = VERDADEIRO) entao
       se(valData() = VERDADEIRO) entao
-         printAlerta("Cadastro concluído com sucesso!", "")
+         printAlerta("Cadastro concluído com sucesso!", "--------------------------------------------")
 
 
          indiceCliente <- indiceCliente + 1
@@ -243,6 +252,74 @@ inicio
       escreval("  - ", listaDestinos[i])
    fimpara
 fimprocedimento //Fim do procedimento consultarDestinos();
+
+procedimento consultarClientes()
+var
+   i:inteiro
+inicio
+   escreval("")
+
+   escreval("     Nomes completos:")
+   escreval("----------------------------------------------------------------")
+
+   se(nomesClientes[i, 0] = "") entao
+      escreval("")
+      escreval(" -- Sem clientes ativos no momento! --")
+   senao
+      para i de 0 ate MAX_CLIENTES faca
+         escreval((i+1),"- ", nomesClientes[i, 0], " ", nomesClientes[i, 1])
+      fimpara
+   fimse
+
+   escreval("")
+fimprocedimento //Fim do procedimento consultarDestinos();
+
+procedimento consultarClienteIndividual()
+var
+   nomeCliente:caractere
+   i, contador:inteiro
+inicio
+   printHeader()
+   escreval("# - Connsulta individual de clientes ativos:")
+   escreval("")
+   escreval("Informe exatamente o primeiro nome do cliente ou digite 0 - para")
+   escreval("voltar...")
+   escreva("-> ")
+   leia(nomeCliente)
+
+   se(nomeCliente <> "0") entao
+      se(nomesClientes[i, 0] = "") entao
+         printAlerta("Não há clientes ativos cadastrados!", "--------------------------------------------")
+      senao
+         se(nomeCliente = "") entao
+            contador <-5
+         senao
+            para i de 0 ate MAX_CLIENTES faca
+               se(nomeCliente = nomesClientes[i,0]) entao
+                  escreval("")
+                  escreval("Cliente nº ", (i+1), ": ", nomesClientes[i,0], " ", nomesClientes[i,1])
+                  escreval("----------------------------------------------------------------")
+                  escreval("Situação: Cadastrado(a)")
+                  escreval("Data de nascimento: ", dadosClientes[i,0],"/", dadosClientes[i,1],"/", dadosClientes[i,2])
+                  escreval("Destino programado: ", nomesClientes[i,2])
+                  escreval("----------------------------------------------------------------")
+                  interrompa
+               senao
+                  contador <- contador+1
+               fimse
+            fimpara
+         fimse
+
+         se((contador-1) = MAX_CLIENTES) entao
+            printAlerta("Cliente não encontrado!", "--- Por favor, verifique o nome informado ---")
+            consultarClienteIndividual()
+         fimse
+      fimse
+   fimse
+
+   escreval("")
+fimprocedimento //Fim do procedimento consultarClienteIndividual();
+
 
 //----------------------------------- FUNÇÕES ---------------------------------;
 //#Validações de dados:
